@@ -6,7 +6,11 @@ import hello.servlet.web.frontcontroller.v3.ControllerV3;
 import hello.servlet.web.frontcontroller.v3.controller.MemberFormControllerV3;
 import hello.servlet.web.frontcontroller.v3.controller.MemberListControllerV3;
 import hello.servlet.web.frontcontroller.v3.controller.MemberSaveControllerV3;
+import hello.servlet.web.frontcontroller.v4.controller.MemberFormControllerV4;
+import hello.servlet.web.frontcontroller.v4.controller.MemberListControllerV4;
+import hello.servlet.web.frontcontroller.v4.controller.MemberSaveControllerV4;
 import hello.servlet.web.frontcontroller.v5.adapter.ControllerV3HandlerAdapter;
+import hello.servlet.web.frontcontroller.v5.adapter.ControllerV4HandlerAdapter;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -31,10 +35,7 @@ public class FrontControllerServletV5 extends HttpServlet {
         initHandlerAdapter();
     }
 
-    private void initHandlerAdapter() {
-        handlerAdapters.add(new ControllerV3HandlerAdapter());
-    }
-
+    // 어떤 컨트롤러를 사용할지 정할 때 사용
     private void initHandlerMapping() {
         handlerMappingMap.put("/front-controller/v5/v3/members/new-form", new
                 MemberFormControllerV3());
@@ -42,6 +43,20 @@ public class FrontControllerServletV5 extends HttpServlet {
                 MemberSaveControllerV3());
         handlerMappingMap.put("/front-controller/v5/v3/members", new
                 MemberListControllerV3());
+
+        // V4 추가
+        handlerMappingMap.put("/front-controller/v5/v4/members/new-form", new
+                MemberFormControllerV4());
+        handlerMappingMap.put("/front-controller/v5/v4/members/save", new
+                MemberSaveControllerV4());
+        handlerMappingMap.put("/front-controller/v5/v4/members", new
+                MemberListControllerV4());
+    }
+
+    // 어떤 버전을 사용할지 정할때 사용
+    private void initHandlerAdapter() {
+        handlerAdapters.add(new ControllerV3HandlerAdapter());
+        handlerAdapters.add(new ControllerV4HandlerAdapter());
     }
 
     @Override
@@ -55,6 +70,8 @@ public class FrontControllerServletV5 extends HttpServlet {
         }
 
         // 핸들러의 버전에 맞는 어댑터 찾기
+        // 어댑터가 필요한 이유는 컨트롤러는 현재 뷰의 이름(String)만을 반환하고 있지만,
+        // 뷰를 생성하기 위해서는 ModelView가 반환되어야 한다. 이를 어댑터가 처리한다.
         MyHandlerAdapter adapter = getHandlerAdapter(handler);
 
         ModelView mv = adapter.handle(request, response, handler);
